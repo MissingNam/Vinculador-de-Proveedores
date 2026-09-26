@@ -1,13 +1,19 @@
 <template>
   <v-card class="mb-4">
+    
     <v-card-title class="d-flex align-center justify-space-between">
       {{ post.title }}
       <v-btn v-if="isOwner" icon="mdi-delete" size="small" variant="text"
              :loading="deleting" @click="deletePost" />
     </v-card-title>
-    <v-card-subtitle>{{ post.profiles?.full_name }}</v-card-subtitle>
+    <v-card-subtitle>
+      <RouterLink :to="`/usuario/${post.author_id}`" class="text-decoration-none">
+        {{ post.profiles?.full_name }}
+      </RouterLink>
+    </v-card-subtitle>
     <v-card-text>
       {{ post.description }}
+      <v-img v-if="post.image_url" :src="post.image_url" height="300" width="485" cover />
       <div class="mt-2">
         <v-chip v-for="t in post.post_tags" :key="t.tags.id" size="small" class="mr-1">
           {{ t.tags.name }}
@@ -55,6 +61,7 @@ async function deletePost() {
   if (!confirm('¿Eliminar esta publicación?')) return
   deleting.value = true
   const { error } = await supabase.from('posts').delete().eq('id', props.post.id)
+  window.location.reload()
   deleting.value = false
   if (!error) emit('deleted', props.post.id)
 }
