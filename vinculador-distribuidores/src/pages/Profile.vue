@@ -31,7 +31,14 @@
           <v-btn size="small" variant="text" icon="mdi-pencil" @click="openTagsDialog" />
         </div>
         <div v-if="myTags.length">
-          <v-chip v-for="t in myTags" :key="t.id" size="small" class="mr-1 mb-1">{{ t.name }}</v-chip>
+          <v-chip
+            v-for="t in myTags"
+            :key="t.id"
+            :aria-label="`Buscar perfiles con la etiqueta ${t.name}`"
+            class="mr-1 mb-1"
+            size="small"
+            :to="{ path: '/perfiles', query: { tag: t.name } }"
+          >{{ t.name }}</v-chip>
         </div>
         <p v-else class="text-medium-emphasis">Sin etiquetas todavía.</p>
       </div>
@@ -187,7 +194,7 @@ async function fetchTagsAndLinks() {
     .from('profile_tags')
     .select('tags(id, name)')
     .eq('profile_id', authStore.user.id)
-  myTags.value = (tagsData ?? []).map(row => row.tags)
+  myTags.value = (tagsData ?? []).map(row => row.tags).filter(Boolean)
 
   const { data: linksData } = await supabase
     .from('profile_links')

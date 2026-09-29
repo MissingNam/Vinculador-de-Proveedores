@@ -36,6 +36,11 @@ const router = createRouter({
       component: Profile,
     },
     {
+      path: '/perfiles',
+      name: 'profile-search',
+      component: () => import('@/pages/ProfileSearch.vue'),
+    },
+    {
       path: '/feed',
       component: Feed,
     },

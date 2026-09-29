@@ -1,19 +1,8 @@
+import { literalPattern, quotedFilter, searchParam } from './searchUtils.js'
+
+export { searchParam } from './searchUtils.js'
+
 export const POSTS_PAGE_SIZE = 20
-
-export function searchParam(value) {
-  const first = Array.isArray(value) ? value[0] : value
-  return typeof first === 'string' ? first.trim() : ''
-}
-
-// Escape regular expressions so punctuation is searched as literal text.
-function literalPattern(text) {
-  return text.replace(/[.*+?^${}()|[\]\\]/g, String.raw`\$&`)
-}
-
-// The OR expression uses PostgREST syntax; quote its values separately.
-function quotedFilter(value) {
-  return `"${value.replaceAll('\\', '\\\\').replaceAll('"', String.raw`\"`)}"`
-}
 
 export async function searchPosts(client, { text = '', tag = '', page = 1, pageSize = POSTS_PAGE_SIZE, signal } = {}) {
   text = searchParam(text)
