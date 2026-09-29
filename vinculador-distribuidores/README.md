@@ -36,6 +36,32 @@ revisa el estilo del código sin modificarlo.
 - El buscador también permite volver al listado desde un perfil. Las etiquetas
   del perfil no forman parte de este filtro; se usan las etiquetas de los posts.
 
+## Búsqueda de perfiles
+
+Selecciona «Perfiles» en «Buscar en». El texto se busca en el nombre del perfil
+y en sus propias etiquetas. También puedes pulsar las etiquetas de tu perfil,
+de otro usuario o de una tarjeta de resultados para encontrar perfiles relacionados.
+
+- Las etiquetas de publicaciones y perfiles son independientes.
+- La búsqueda encuentra perfiles aunque no tengan publicaciones, y por nombre
+  aunque no tengan etiquetas.
+- Un texto y una etiqueta seleccionados se combinan. Se conserva el texto al
+  cambiar entre Publicaciones y Perfiles; la etiqueta y la página se reinician.
+- Los resultados se ordenan por nombre, en páginas de 20. «Ver perfil» abre
+  la pantalla existente del usuario. `/perfiles` muestra la búsqueda y `/perfil`
+  sigue mostrando tu cuenta.
+- El texto admite coincidencias parciales, ignora mayúsculas y distingue acentos,
+  igual que la búsqueda de publicaciones. Las etiquetas seleccionadas son exactas.
+
+### Comprobaciones
+
+Las pruebas de integración consultan Supabase sin crear ni modificar perfiles o
+publicaciones. Requieren un conjunto de desarrollo de hasta 100 perfiles y 100
+posts, con al menos un perfil sin etiquetas, otro sin publicaciones y etiquetas
+de perfil. Configura `SEARCH_TEST_EMAIL` y `SEARCH_TEST_PASSWORD` en la terminal
+con una cuenta de pruebas y ejecuta `pnpm test:search`. No guardes esos valores
+en los archivos de pruebas. La URL y la clave publicable se leen de `.env`.
+
 Para una comprobación manual, prueba coincidencias solo en la descripción o en
 una etiqueta, texto y etiqueta combinados, búsquedas sin resultados, limpiar los
 filtros y recargar la página. No hace falta modificar las tablas de Supabase.

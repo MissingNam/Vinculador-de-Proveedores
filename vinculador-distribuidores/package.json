@@ -8,7 +8,8 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint",
-    "lint:fix": "eslint --fix"
+    "lint:fix": "eslint --fix",
+    "test:search": "node --test tests/search.integration.test.js"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.2.10",

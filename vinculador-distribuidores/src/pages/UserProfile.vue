@@ -16,7 +16,14 @@
       <p v-if="profile.bio" class="mt-4">{{ profile.bio }}</p>
 
       <div v-if="tags.length" class="mt-3">
-        <v-chip v-for="t in tags" :key="t.id" size="small" class="mr-1 mb-1">{{ t.name }}</v-chip>
+        <v-chip
+          v-for="t in tags"
+          :key="t.id"
+          :aria-label="`Buscar perfiles con la etiqueta ${t.name}`"
+          class="mr-1 mb-1"
+          size="small"
+          :to="{ path: '/perfiles', query: { tag: t.name } }"
+        >{{ t.name }}</v-chip>
       </div>
 
       <div v-if="links.length" class="mt-3">
@@ -69,7 +76,7 @@ async function loadUser(id) {
     .from('profile_tags')
     .select('tags(id, name)')
     .eq('profile_id', id)
-  tags.value = (tagsData ?? []).map(row => row.tags)
+  tags.value = (tagsData ?? []).map(row => row.tags).filter(Boolean)
 
   const { data: linksData } = await supabase
     .from('profile_links')
