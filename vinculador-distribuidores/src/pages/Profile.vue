@@ -14,6 +14,13 @@
         </div>
       </div>
 
+      <ProviderClassification
+        v-if="canClassify(authStore.profile?.role) && authStore.user"
+        :key="authStore.user.id"
+        :profile-id="authStore.user.id"
+        editable
+      />
+
       <!-- Bio -->
       <div class="mt-4">
         <div class="d-flex align-center justify-space-between">
@@ -130,6 +137,8 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import PostCard from '@/components/PostCard.vue'
+import ProviderClassification from '@/components/ProviderClassification.vue'
+import { canClassify } from '@/lib/classification'
 import { ROLE_COLORS, ROLE_LABELS } from '@/lib/roles'
 
 const authStore = useAuthStore()

@@ -5,6 +5,7 @@
     </v-app-bar-title>
 
     <v-spacer />
+    <v-btn aria-label="Necesidades" icon="mdi-clipboard-text-outline" to="/necesidades" />
     <v-btn aria-label="Crear publicación" icon="mdi-plus" to="/publicar" />
     <v-btn aria-label="Mi perfil" icon="mdi-account" to="/perfil" />
     <v-btn aria-label="Cerrar sesión" icon="mdi-logout" @click="logout" />
@@ -25,12 +26,12 @@
 
         <v-text-field
           v-model="searchText"
-          :aria-label="searchType === 'profiles' ? 'Buscar perfiles' : 'Buscar publicaciones'"
+          :aria-label="searchLabel"
           class="search-field"
           clearable
           density="compact"
           hide-details
-          :placeholder="searchType === 'profiles' ? 'Nombre o etiqueta…' : 'Buscar publicaciones…'"
+          :placeholder="searchLabel"
           variant="solo"
           @click:clear="clearSearch"
           @keydown.enter.prevent="search"
@@ -47,7 +48,7 @@
         </v-text-field>
 
         <v-switch
-          v-if="authStore.profile?.role !== 'socio'"
+          v-if="searchType === 'posts' && authStore.profile?.role !== 'socio'"
           v-model="authStore.swapView"
           :aria-label="`Invertir rol. Viendo: ${feedLabel}`"
           class="role-switch"
@@ -77,7 +78,11 @@
   const searchTypes = [
     { title: 'Publicaciones', value: 'posts' },
     { title: 'Perfiles', value: 'profiles' },
+    { title: 'Necesidades', value: 'needs' },
   ]
+
+  const searchPath = computed(() => ({ posts: '/', profiles: '/perfiles', needs: '/necesidades' })[searchType.value])
+  const searchLabel = computed(() => ({ posts: 'Buscar publicaciones', profiles: 'Nombre o etiqueta', needs: 'Título o descripción' })[searchType.value])
 
   const feedLabel = computed(() => {
     if (authStore.feedRole === 'proveedor') return 'Proveedores'
@@ -90,22 +95,26 @@
   }, { immediate: true })
 
   watch(() => route.path, path => {
-    searchType.value = path === '/perfiles' || path === '/perfil' || path.startsWith('/usuario/') ? 'profiles' : 'posts'
+    searchType.value = path.startsWith('/necesidades') ? 'needs'
+      : (path === '/perfiles' || path === '/perfil' || path.startsWith('/usuario/') ? 'profiles' : 'posts')
   }, { immediate: true })
 
   function search() {
     const q = searchParam(searchText.value)
     searchText.value = q
-    const path = searchType.value === 'profiles' ? '/perfiles' : '/'
-    const sameSearch = path === '/perfiles' ? route.path === '/perfiles' : ['/', '/feed'].includes(route.path)
-    const tag = sameSearch ? searchParam(route.query.tag) : ''
-    router.push({ path, query: { ...(q ? { q } : {}), ...(tag ? { tag } : {}) } })
+    const path = searchPath.value
+    const sameSearch = path === '/' ? ['/', '/feed'].includes(route.path) : route.path === path
+    const query = sameSearch ? { ...route.query } : {}
+    delete query.page
+    if (q) query.q = q
+    else delete query.q
+    router.push({ path, query })
   }
 
   function changeSearchType() {
     // Switching category preserves the text, but not a tag from another category.
     const q = searchParam(searchText.value)
-    router.push({ path: searchType.value === 'profiles' ? '/perfiles' : '/', query: q ? { q } : {} })
+    router.push({ path: searchPath.value, query: q ? { q } : {} })
   }
 
   function clearSearch() {

@@ -1,16 +1,30 @@
 <template>
   <v-card class="mb-4">
 
-    <v-chip
-      v-if="affinity !== null"
-      :aria-label="`Afinidad con tu perfil: ${affinityLabel}`"
-      class="affinity-badge"
-      :color="affinityColor"
-      size="small"
-      variant="flat"
-    >
-      {{ affinityLabel }}
-    </v-chip>
+    <v-tooltip v-if="affinity !== null" location="bottom" max-width="260" open-on-click>
+      <template #activator="{ props: tooltipProps }">
+        <v-chip
+          v-bind="tooltipProps"
+          :aria-label="`Afinidad con tu perfil: ${affinityLabel}`"
+          class="affinity-badge"
+          :color="affinityColor"
+          size="small"
+          tabindex="0"
+          variant="flat"
+        >
+          {{ affinityLabel }}
+        </v-chip>
+      </template>
+
+      <div class="text-caption font-weight-bold mb-1">Puntaje por etiqueta</div>
+
+      <div v-if="tagScores.length === 0">Este post no tiene etiquetas.</div>
+
+      <div v-for="t in tagScores" :key="t.id" class="d-flex justify-space-between ga-4">
+        <span>{{ t.name }}</span>
+        <span class="font-weight-bold" :class="scoreClass(t.score)">{{ scoreLabel(t.score) }}</span>
+      </div>
+    </v-tooltip>
     
     <v-card-title class="d-flex align-center justify-space-between">
       {{ post.title }}
@@ -103,7 +117,24 @@
   return value == null ? null : Math.round(Number(value) * 10) / 10})
   const affinityColor = computed(() => (affinity.value > 0 ? 'green' : affinity.value < 0 ? 'red' : 'grey'))
   const affinityLabel = computed(() => (affinity.value > 0 ? '+' : '') + affinity.value)
+  const tagScores = computed(() =>
+    visibleTags.value.map(t => ({
+      id: t.tags.id,
+      name: t.tags.name,
+      score: t.tags.user_tag_scores?.[0]?.score ?? 0, // sin fila = nunca has reaccionado a esa etiqueta
+    })),
+  )
 
+  function scoreLabel(score) {
+    return (score > 0 ? '+' : '') + score
+  }
+
+  function scoreClass(score) {
+    if (score > 0) return 'text-green-lighten-2'
+    if (score < 0) return 'text-red-lighten-2'
+    return 'text-grey-lighten-1'
+  }
+    
     
 
   function tagLink(tag) {

@@ -2,12 +2,16 @@
 
 Scaffolded with Vuetify CLI.
 
+## Clasificación y necesidades (HU-C3′ / HU-C4′)
+
+Consulta [la guía de activación, decisiones y pruebas](docs/clasificacion-y-necesidades.md). Estas funciones requieren ejecutar primero la migración de Supabase incluida en `supabase/migrations/202610190001_classification_needs.sql`.
+
 ## Configuración local de Supabase
 
 Ejecuta los comandos desde la carpeta `vinculador-distribuidores`.
 
 1. Instala las dependencias con `pnpm install --frozen-lockfile`.
-2. Copia `.env.example` a `.env` y completa `VITE_SUPABASE_URL` y
+2. Crea un archivo `.env` y completa `VITE_SUPABASE_URL` y
    `VITE_SUPABASE_PUBLISHABLE_KEY` con la configuración de desarrollo del equipo.
    Usa únicamente la clave publicable; nunca una clave secreta o `service_role`.
 3. Inicia el servidor con `pnpm dev` y abre la dirección que muestre la terminal
