@@ -44,7 +44,7 @@
   const props = defineProps({ profile: { type: Object, required: true } })
   const route = useRoute()
   const profileLink = computed(() => ({ name: 'user-profile', params: { id: props.profile.id } }))
-  const roleLabel = computed(() => ({ proveedor: 'Proveedor', cliente: 'Cliente' })[props.profile.role] || props.profile.role)
+  const roleLabel = ROLE_LABELS[props.profile.role] || props.profile.role;
   const tags = computed(() => (props.profile.profile_tags ?? []).map(row => row.tags).filter(Boolean))
 
   function tagLink(tag) {

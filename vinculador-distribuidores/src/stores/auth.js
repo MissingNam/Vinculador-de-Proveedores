@@ -6,7 +6,18 @@ export const useAuthStore = defineStore('auth', {
     user: null,
     profile: null,
     loading: true,
+    swapView: false,    
   }),
+
+  getters: {                  
+    // Rol de los posts que se muestran en el feed
+    feedRole: (state) => {
+      const myRole = state.profile?.role
+      if (!myRole || myRole === 'socio') return ''
+      const opposite = myRole === 'cliente' ? 'proveedor' : 'cliente'
+      return state.swapView ? myRole : opposite
+    },
+  },
   actions: {
     async init() {
       const { data: { session } } = await supabase.auth.getSession()
@@ -48,6 +59,7 @@ export const useAuthStore = defineStore('auth', {
       await supabase.auth.signOut()
       this.user = null
       this.profile = null
+      this.swapView = false  
     },
   },
 })

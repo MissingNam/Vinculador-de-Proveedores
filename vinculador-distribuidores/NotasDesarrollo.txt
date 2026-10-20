@@ -1,0 +1,7 @@
+Para ver el vector de puntajes, hacer una consulta en supabase con lo siguiente:
+
+select p.full_name, t.name as etiqueta, s.score
+from user_tag_scores s
+join tags t on t.id = s.tag_id
+join profiles p on p.id = s.user_id
+order by p.full_name, s.score desc;

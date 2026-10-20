@@ -8,9 +8,9 @@
         </v-avatar>
         <div>
           <div class="text-h5">{{ profile.full_name }}</div>
-          <v-chip size="small" :color="profile.role === 'proveedor' ? 'blue' : 'green'">
-            {{ profile.role }}
-          </v-chip>
+            <v-chip size="small" :color="ROLE_COLORS[profile.role]">
+              {{ ROLE_LABELS[profile.role] }}
+            </v-chip>
         </div>
       </div>
       <p v-if="profile.bio" class="mt-4">{{ profile.bio }}</p>
@@ -43,6 +43,7 @@
 
 
 <script setup>
+import { ROLE_COLORS, ROLE_LABELS } from '@/lib/roles'
 import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabase'
@@ -66,7 +67,7 @@ async function loadUser(id) {
 
   const { data: postsData } = await supabase
     .from('posts')
-    .select('*, profiles(full_name), post_tags(tags(id, name))')
+    .select('*, profiles(full_name, role), post_tags(tags(id, name))')
     .eq('author_id', id)
     .order('created_at', { ascending: false })
   posts.value = postsData ?? []

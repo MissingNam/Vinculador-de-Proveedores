@@ -9,6 +9,7 @@
         <v-radio-group v-model="role" label="Soy...">
           <v-radio label="Proveedor" value="proveedor" />
           <v-radio label="Cliente" value="cliente" />
+          <v-radio label="Socio" value="socio" />
         </v-radio-group>
         <v-alert v-if="error" type="error" density="compact" class="mb-4">{{ error }}</v-alert>
         <v-btn type="submit" color="primary" block :loading="loading">Registrarme</v-btn>

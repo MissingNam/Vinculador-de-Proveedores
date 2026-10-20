@@ -8,9 +8,9 @@
         </v-avatar>
         <div>
           <div class="text-h5">{{ authStore.profile?.full_name }}</div>
-          <v-chip size="small" :color="authStore.profile?.role === 'proveedor' ? 'blue' : 'green'">
-            {{ authStore.profile?.role }}
-          </v-chip>
+            <v-chip size="small" :color="ROLE_COLORS[authStore.profile?.role]">
+              {{ ROLE_LABELS[authStore.profile?.role] }}
+            </v-chip>
         </div>
       </div>
 
@@ -130,6 +130,7 @@ import { ref, onMounted } from 'vue'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
 import PostCard from '@/components/PostCard.vue'
+import { ROLE_COLORS, ROLE_LABELS } from '@/lib/roles'
 
 const authStore = useAuthStore()
 const myPosts = ref([])
@@ -301,7 +302,7 @@ function removePost(id) {
 onMounted(async () => {
   const { data } = await supabase
     .from('posts')
-    .select('*, profiles(full_name), post_tags(tags(id, name))')
+    .select('*, profiles(full_name, role), post_tags(tags(id, name))')
     .eq('author_id', authStore.user.id)
     .order('created_at', { ascending: false })
   myPosts.value = data ?? []

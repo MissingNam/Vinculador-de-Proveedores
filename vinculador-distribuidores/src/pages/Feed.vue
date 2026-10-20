@@ -1,6 +1,16 @@
 <template>
-  <v-container max-width="700">
-    <h1 class="text-h5 mb-3">{{ hasFilters ? 'Resultados de búsqueda' : 'Publicaciones' }}</h1>
+
+  <RecommendedFeed v-if="!hasFilters" />
+
+  <v-container v-else max-width="700">
+    <h1 class="text-h5 mb-3">
+      {{ hasFilters ? 'Resultados de búsqueda'
+        : authStore.profile?.role === 'socio' ? 'Todas las publicaciones'
+        : authStore.feedRole === 'proveedor' ? 'Publicaciones de proveedores'
+        : 'Publicaciones de clientes' }}
+  </h1>
+
+  
 
     <div v-if="hasFilters" class="d-flex flex-wrap align-center ga-2 mb-4">
       <v-chip v-if="text" :aria-label="`Texto buscado: ${text}`" closable @click:close="removeFilter('q')">
@@ -53,6 +63,11 @@
   import PostCard from '@/components/PostCard.vue'
   import { POSTS_PAGE_SIZE, searchParam, searchPosts } from '@/lib/postSearch'
   import { supabase } from '@/lib/supabase'
+  import { useAuthStore } from '@/stores/auth'
+  import RecommendedFeed from '@/components/RecommendedFeed.vue'
+
+  const authStore = useAuthStore()
+  const targetRole = computed(() => authStore.feedRole)
 
   const route = useRoute()
   const router = useRouter()
@@ -70,8 +85,16 @@
   const pageCount = computed(() => Math.ceil(total.value / POSTS_PAGE_SIZE))
   let activeRequest
 
+  
+
   async function loadPosts() {
     activeRequest?.abort()
+    if (!hasFilters.value) {         
+      posts.value = []
+      total.value = 0
+      loading.value = false
+      return
+    }
     const request = new AbortController()
     activeRequest = request
     loading.value = true
@@ -80,7 +103,8 @@
     total.value = 0
     try {
       const result = await searchPosts(supabase, {
-        text: text.value, tag: tag.value, page: page.value, signal: request.signal,
+        text: text.value, tag: tag.value, role: targetRole.value,
+        page: page.value, signal: request.signal,
       })
       if (request.signal.aborted) return
       posts.value = result.posts
@@ -109,7 +133,7 @@
     router.push({ path: route.path, query: { ...route.query, page: value === 1 ? undefined : String(value) } })
   }
 
-  watch([text, tag, page], loadPosts, { immediate: true })
+  watch([text, tag, page, targetRole], loadPosts, { immediate: true })
   onBeforeUnmount(() => activeRequest?.abort())
 </script>
 

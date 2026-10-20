@@ -1,5 +1,16 @@
 <template>
   <v-card class="mb-4">
+
+    <v-chip
+      v-if="affinity !== null"
+      :aria-label="`Afinidad con tu perfil: ${affinityLabel}`"
+      class="affinity-badge"
+      :color="affinityColor"
+      size="small"
+      variant="flat"
+    >
+      {{ affinityLabel }}
+    </v-chip>
     
     <v-card-title class="d-flex align-center justify-space-between">
       {{ post.title }}
@@ -7,6 +18,7 @@
         v-if="isOwner"
         icon="mdi-delete"
         :loading="deleting"
+        :class="{ 'pr-16': affinity !== null }"
         size="small"
         variant="text"
         @click="deletePost"
@@ -17,6 +29,7 @@
       <RouterLink class="text-decoration-none" :to="`/usuario/${post.author_id}`">
         {{ post.profiles?.full_name }}
       </RouterLink>
+      <span v-if="roleLabel"> - {{ roleLabel }}</span>
     </v-card-subtitle>
 
     <v-card-text>
@@ -55,6 +68,15 @@
   </v-card>
 </template>
 
+<style scoped>
+  .affinity-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    z-index: 1;
+  }
+</style>
+
 
 <script setup>
   import { computed, ref } from 'vue'
@@ -68,10 +90,21 @@
     readonly: { type: Boolean, default: false }, // oculta me interesa/no me interesa
   })
   const emit = defineEmits(['deleted'])
+  
 
   const authStore = useAuthStore()
   const route = useRoute()
   const visibleTags = computed(() => (props.post.post_tags ?? []).filter(t => t.tags))
+  const roleLabel = computed(() => {
+  const role = props.post.profiles?.role
+  return role ? role.charAt(0).toUpperCase() + role.slice(1) : '' })
+  const affinity = computed(() => {
+  const value = props.post.affinity
+  return value == null ? null : Math.round(Number(value) * 10) / 10})
+  const affinityColor = computed(() => (affinity.value > 0 ? 'green' : affinity.value < 0 ? 'red' : 'grey'))
+  const affinityLabel = computed(() => (affinity.value > 0 ? '+' : '') + affinity.value)
+
+    
 
   function tagLink(tag) {
     const q = ['/', '/feed'].includes(route.path) ? searchParam(route.query.q) : ''

@@ -45,16 +45,29 @@
             />
           </template>
         </v-text-field>
+
+        <v-switch
+          v-if="authStore.profile?.role !== 'socio'"
+          v-model="authStore.swapView"
+          :aria-label="`Invertir rol. Viendo: ${feedLabel}`"
+          class="role-switch"
+          color="primary"
+          density="compact"
+          :disabled="!authStore.profile"
+          hide-details
+          :label="`Viendo: ${feedLabel}`"
+        />
       </div>
     </template>
   </v-app-bar>
 </template>
 
 <script setup>
-  import { ref, watch } from 'vue'
+  import { computed, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { searchParam } from '@/lib/searchUtils'
   import { useAuthStore } from '@/stores/auth'
+  
 
   const router = useRouter()
   const route = useRoute()
@@ -65,6 +78,12 @@
     { title: 'Publicaciones', value: 'posts' },
     { title: 'Perfiles', value: 'profiles' },
   ]
+
+  const feedLabel = computed(() => {
+    if (authStore.feedRole === 'proveedor') return 'Proveedores'
+    if (authStore.feedRole === 'cliente') return 'Clientes'
+    return ''
+  })
 
   watch(() => route.query.q, value => {
     searchText.value = searchParam(value)
@@ -109,6 +128,10 @@
   max-width: 900px;
   margin: 0 auto;
   padding: 0 16px;
+}
+
+.role-switch {
+  flex: 0 0 auto;
 }
 
 .search-type {

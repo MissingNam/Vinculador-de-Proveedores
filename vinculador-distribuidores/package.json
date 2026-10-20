@@ -2,7 +2,7 @@
   "name": "vinculador-distribuidores",
   "private": true,
   "type": "module",
-  "version": "0.0.0",
+  "version": "0.5.0",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -15,6 +15,7 @@
     "@fontsource/roboto": "^5.2.10",
     "@mdi/font": "7.4.47",
     "@supabase/supabase-js": "^2.116.0",
+    "jscpd": "^5.4.0",
     "pinia": "^4.0.3",
     "vue": "^3.5.30",
     "vue-router": "^5.0.3",
