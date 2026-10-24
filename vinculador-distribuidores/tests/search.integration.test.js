@@ -60,14 +60,14 @@ test('Búsquedas de perfiles y publicaciones en Supabase', async t => {
       for (const tag of profileTags) {
         await checkProfiles({ text: tag.toUpperCase() })
         await checkProfiles({ tag })
-        for (const name of names) {await checkProfiles({ text: name, tag })}
+        for (const name of names) { await checkProfiles({ text: name, tag }) }
       }
     })
     await t.test('Perfiles sin etiquetas y sin publicaciones', async () => {
       const withoutTags = profiles.filter(profile => tagsOf(profile, 'profile_tags').length === 0)
       const withoutPosts = profiles.filter(profile => !posts.some(post => post.author_id === profile.id))
       assert.ok(withoutTags.length > 0 && withoutPosts.length > 0, 'Incluye perfiles sin etiquetas y sin publicaciones en los datos de prueba.')
-      for (const profile of [...withoutTags, ...withoutPosts]) {await checkProfiles({ text: profile.full_name })}
+      for (const profile of [...withoutTags, ...withoutPosts]) { await checkProfiles({ text: profile.full_name }) }
     })
     await t.test('Las etiquetas de posts no se atribuyen a sus autores', async () => {
       for (const tag of postTags) {
@@ -107,7 +107,7 @@ test('Búsquedas de perfiles y publicaciones en Supabase', async t => {
               && (!text.trim() || [post.title, post.description, ...tags.map(item => item.name)].some(value => value?.toLowerCase().includes(text.trim().toLowerCase())))
           })
           const actual = await searchPosts(client, { text, tag, pageSize: 100 })
-          assert.deepEqual(actual.posts.map(post => post.id), expected.map(post => post.id))
+          assert.deepEqual(actual.posts.map(post => post.id), expected.map(post => post.id), `text=${JSON.stringify(text)} tag=${JSON.stringify(tag)}`)
           assert.equal(actual.total, expected.length)
         }
       }

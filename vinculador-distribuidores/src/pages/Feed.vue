@@ -64,7 +64,7 @@
   import { POSTS_PAGE_SIZE, searchParam, searchPosts } from '@/lib/postSearch'
   import { supabase } from '@/lib/supabase'
   import { useAuthStore } from '@/stores/auth'
-  import RecommendedFeed from '@/components/RecommendedFeed.vue'
+  import RecommendedFeed from '@/components/recommendedFeed.vue'
 
   const authStore = useAuthStore()
   const targetRole = computed(() => authStore.feedRole)

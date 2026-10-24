@@ -40,6 +40,7 @@
   import { computed } from 'vue'
   import { useRoute } from 'vue-router'
   import { searchParam } from '@/lib/searchUtils'
+  import { ROLE_LABELS } from '@/lib/roles'
 
   const props = defineProps({ profile: { type: Object, required: true } })
   const route = useRoute()
