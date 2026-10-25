@@ -1,24 +1,36 @@
 <template>
   <v-card class="mb-4">
 
-    <v-chip
-      v-if="affinity !== null"
-      :aria-label="`Afinidad con tu perfil: ${affinityLabel}`"
-      class="affinity-badge"
-      :color="affinityColor"
-      size="small"
-      variant="tonal"
-    >
-      {{ affinityLabel }}
-    </v-chip>
+    <v-tooltip v-if="affinity !== null" location="bottom" max-width="260" open-on-click>
+      <template #activator="{ props: tooltipProps }">
+        <v-chip
+          v-bind="tooltipProps"
+          :aria-label="`Afinidad con tu perfil: ${affinityLabel}`"
+          class="affinity-badge"
+          :color="affinityColor"
+          size="small"
+          tabindex="0"
+          variant="tonal"
+        >
+          {{ affinityLabel }}
+        </v-chip>
+      </template>
+
+      <div class="text-body-2 font-weight-bold mb-2">Puntaje por etiqueta</div>
+      <div v-if="tagScores.length === 0">Este post no tiene etiquetas.</div>
+      <div v-for="t in tagScores" :key="t.id" class="d-flex justify-space-between ga-4">
+        <span>{{ t.name }}</span>
+        <span class="font-weight-bold" :class="scoreClass(t.score)">{{ scoreLabel(t.score) }}</span>
+      </div>
+    </v-tooltip>
     
-    <v-card-title class="d-flex align-center justify-space-between">
+    <v-card-title class="d-flex align-center justify-space-between" :class="{ 'pr-16': affinity !== null }">
       {{ post.title }}
+      
       <v-btn
         v-if="isOwner"
         icon="mdi-delete"
         :loading="deleting"
-        :class="{ 'pr-16': affinity !== null }"
         size="small"
         variant="text"
         @click="deletePost"
@@ -84,6 +96,13 @@
     readonly: { type: Boolean, default: false }, // oculta me interesa/no me interesa
   })
   const emit = defineEmits(['deleted'])
+
+  // Desglose por etiqueta (viene de user_tag_scores en la misma consulta); sin fila = 0
+  const tagScores = computed(() => visibleTags.value.map(t => ({
+    id: t.tags.id,
+    name: t.tags.name,
+    score: t.tags.user_tag_scores?.[0]?.score ?? 0,
+  })))
   
 
   const authStore = useAuthStore()
@@ -104,8 +123,10 @@
     return 'text-muted'
   }
 
-    
-
+  function scoreLabel(score) {
+    return (score > 0 ? '+' : '') + score
+  }
+     
   function tagLink(tag) {
     const q = ['/', '/feed'].includes(route.path) ? searchParam(route.query.q) : ''
     return { path: '/', query: { ...(q ? { q } : {}), tag } }

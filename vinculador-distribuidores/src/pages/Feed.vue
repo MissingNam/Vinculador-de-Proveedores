@@ -103,7 +103,7 @@
   import { computed, onBeforeUnmount, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import PostCard from '@/components/PostCard.vue'
-  import RecommendedFeed from '@/components/recommendedFeed.vue'
+  import RecommendedFeed from '@/components/RecommendedFeed.vue'
   import SearchBox from '@/components/SearchBox.vue'
   import { POSTS_PAGE_SIZE, searchParam, searchPosts } from '@/lib/postSearch'
   import { supabase } from '@/lib/supabase'

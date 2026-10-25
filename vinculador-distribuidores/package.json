@@ -9,7 +9,9 @@
     "preview": "vite preview",
     "lint": "eslint",
     "lint:fix": "eslint --fix",
-    "test:search": "node --test tests/search.integration.test.js"
+    "test:search": "node --test tests/search.integration.test.js",
+    "test:classification": "node --test tests/classification-needs.test.js tests/classification-ui.test.js tests/classification-api.test.js",
+    "seed:needs": "node scripts/seed-classified-needs.mjs"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.2.10",
@@ -22,6 +24,7 @@
     "vuetify": "^4.0.2"
   },
   "devDependencies": {
+    "@electric-sql/pglite": "^0.5.10",
     "@vitejs/plugin-vue": "^6.0.5",
     "@vuetify/mcp": "^0.5.0",
     "eslint": "^9.39.4",

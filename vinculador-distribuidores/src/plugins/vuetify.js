@@ -47,5 +47,9 @@ export default createVuetify({
     VFileInput: field,
     VSwitch: { color: 'primary' },
     VRadio: { color: 'primary' },
+    VAutocomplete: field,
+    VTabs: { color: 'primary' },
+    VProgressLinear: { color: 'primary' },
+    VProgressCircular: { color: 'primary' },
   },
 })

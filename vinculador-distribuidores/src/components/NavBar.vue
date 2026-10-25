@@ -81,6 +81,7 @@
   const items = [
     { label: 'Recomendaciones', icon: 'mdi-compass-outline', to: '/', match: p => p === '/' || p === '/feed' },
     { label: 'Buscar empresas', icon: 'mdi-domain', to: '/perfiles', match: p => p === '/perfiles' || p.startsWith('/usuario/') },
+    { label: 'Necesidades', icon: 'mdi-clipboard-text-outline', to: '/necesidades', match: p => p.startsWith('/necesidades') },
     { label: 'Publicar', icon: 'mdi-plus-circle-outline', to: '/publicar', match: p => p === '/publicar' },
     { label: 'Mi empresa', icon: 'mdi-office-building-outline', to: '/perfil', match: p => p === '/perfil' },
   ]

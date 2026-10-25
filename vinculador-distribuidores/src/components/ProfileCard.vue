@@ -15,7 +15,7 @@
           <v-chip v-if="profile.role" :color="ROLE_COLORS[profile.role]" size="small" variant="tonal">
             {{ roleLabel }}
           </v-chip>
-          <span v-if="profile.rubro" class="text-body-2 text-muted">{{ profile.rubro }}</span>
+          <span v-if="rubro" class="text-body-2 text-muted">{{ rubro }}</span>
         </div>
       </div>
     </div>
@@ -55,6 +55,13 @@
   const props = defineProps({ profile: { type: Object, required: true } })
   const route = useRoute()
 
+    // La relación es 1:1 (PostgREST devuelve objeto); se acepta también un arreglo por si cambia el esquema
+  const rubro = computed(() => {
+    const classification = props.profile.provider_classifications
+    const row = Array.isArray(classification) ? classification[0] : classification
+    return row?.sectors?.name || ''
+  })
+  
   const name = computed(() => props.profile.full_name || 'Empresa sin nombre')
   const initialsText = computed(() => initials(props.profile.full_name))
   const roleLabel = computed(() => ROLE_LABELS[props.profile.role] || props.profile.role)

@@ -36,6 +36,26 @@ const router = createRouter({
       component: Profile,
     },
     {
+      path: '/necesidades',
+      name: 'needs',
+      component: () => import('@/pages/Needs.vue'),
+    },
+    {
+      path: '/necesidades/nueva',
+      name: 'need-new',
+      component: () => import('@/pages/NeedEditor.vue'),
+    },
+    {
+      path: '/necesidades/:id/editar',
+      name: 'need-edit',
+      component: () => import('@/pages/NeedEditor.vue'),
+    },
+    {
+      path: '/necesidades/:id',
+      name: 'need-detail',
+      component: () => import('@/pages/NeedDetail.vue'),
+    },
+    {
       path: '/perfiles',
       name: 'profile-search',
       component: () => import('@/pages/ProfileSearch.vue'),

@@ -13,6 +13,7 @@
             </v-chip>
         </div>
       </div>
+      <ProviderClassification v-if="canClassify(profile.role)" :key="profile.id" :profile-id="profile.id" />
       <p v-if="profile.bio" class="mt-4">{{ profile.bio }}</p>
 
       <div v-if="tags.length" class="mt-3">
@@ -48,6 +49,8 @@ import { ref, onMounted, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import { supabase } from '@/lib/supabase'
 import PostCard from '@/components/PostCard.vue'
+import ProviderClassification from '@/components/ProviderClassification.vue'
+import { canClassify } from '@/lib/classification'
 
 const route = useRoute()
 const profile = ref(null)

@@ -19,7 +19,9 @@ html { font-size: 16px; }
 .v-application { font-size: 1rem; line-height: 1.5; }
 
 /* Enlaces */
-a { color: rgb(var(--v-theme-primary)); }
+a:not([class^='v-']):not([class*=' v-']) {
+  color: rgb(var(--v-theme-primary));
+}
 
 /* Escala de texto */
 .page-title {                       /* título de página: 24px móvil → 30px escritorio */

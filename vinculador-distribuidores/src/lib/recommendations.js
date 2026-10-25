@@ -1,7 +1,8 @@
 export const WINDOW_SIZE = 9   // posts en la ventana
 export const BUFFER = 4        // posts a cada lado del actual
 
-const POST_COLUMNS = '*, affinity, profiles(full_name, role), post_tags(tags(id, name))'
+const POST_COLUMNS = '*, affinity, profiles(full_name, role), post_tags(tags(id, name, user_tag_scores(score)))'
+
 
 export async function fetchRecommendations(client, { limit, excludeIds = [], roles = null, signal } = {}) {
   let query = client
