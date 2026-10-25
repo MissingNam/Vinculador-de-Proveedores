@@ -90,8 +90,7 @@
     const idx = Math.min(raw, store.items.length - 1) // el slide final no es un post
     const diff = idx - store.activeIndex
     if (diff === 0) return
-    console.log('settled', Math.round(el.scrollTop / height), store.activeIndex)
-
+  
     store.activeIndex = idx
     for (let i = 0; i < Math.abs(diff); i++) {
       store.advance(Math.sign(diff), waitIdle).then(async changed => {
@@ -112,9 +111,10 @@
 
 <style scoped>
   .reco-scroller {
-    height: calc(100dvh - var(--v-layout-top, 128px));
+    flex: 1 1 0;
+    min-height: 0;
     overflow-y: auto;
-    overflow-anchor: none;          /* evita que el navegador "compense" por su cuenta */
+    overflow-anchor: none;
     overscroll-behavior-y: contain;
     scroll-snap-type: y mandatory;
   }
@@ -129,8 +129,8 @@
   }
 
   .reco-card {
-    margin: auto;                   /* centra sin recortar el borde superior si desborda */
+    margin: auto;
     width: 100%;
-    max-width: 700px;
+    max-width: 720px;
   }
 </style>

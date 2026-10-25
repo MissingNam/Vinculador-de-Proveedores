@@ -1,117 +1,98 @@
 <template>
-  <v-app-bar extension-height="64">
-    <v-app-bar-title>
-      <RouterLink class="text-decoration-none text-white" to="/">Sun Finder</RouterLink>
-    </v-app-bar-title>
+  <v-app-bar>
+    <RouterLink aria-label="Sun Finder, ir a Recomendaciones" class="brand" to="/">
+      <v-avatar color="primary" rounded="lg" size="36" variant="tonal">
+        <v-icon icon="mdi-white-balance-sunny" />
+      </v-avatar>
+      <span>Sun Finder</span>
+    </RouterLink>
+
+    <!-- Escritorio: opciones con texto -->
+    <nav v-if="mdAndUp" aria-label="Navegación principal" class="main-nav">
+      <v-btn
+        v-for="item in items"
+        :key="item.to"
+        :aria-current="item === activeItem ? 'page' : undefined"
+        :color="item === activeItem ? 'primary' : 'on-surface'"
+        :to="item.to"
+        :variant="item === activeItem ? 'tonal' : 'text'"
+      >
+        {{ item.label }}
+      </v-btn>
+    </nav>
 
     <v-spacer />
-    <v-btn aria-label="Crear publicación" icon="mdi-plus" to="/publicar" />
-    <v-btn aria-label="Mi perfil" icon="mdi-account" to="/perfil" />
-    <v-btn aria-label="Cerrar sesión" icon="mdi-logout" @click="logout" />
 
-    <template #extension>
-      <div class="search-controls">
-        <v-select
-          v-model="searchType"
-          aria-label="Buscar en"
-          class="search-type"
-          density="compact"
-          hide-details
-          :items="searchTypes"
-          label="Buscar en"
-          variant="solo"
-          @update:model-value="changeSearchType"
-        />
-
-        <v-text-field
-          v-model="searchText"
-          :aria-label="searchType === 'profiles' ? 'Buscar perfiles' : 'Buscar publicaciones'"
-          class="search-field"
-          clearable
-          density="compact"
-          hide-details
-          :placeholder="searchType === 'profiles' ? 'Nombre o etiqueta…' : 'Buscar publicaciones…'"
-          variant="solo"
-          @click:clear="clearSearch"
-          @keydown.enter.prevent="search"
-        >
-          <template #prepend-inner>
-            <v-btn
-              aria-label="Buscar"
-              icon="mdi-magnify"
-              size="small"
-              variant="text"
-              @click="search"
+    <!-- Menú de cuenta: aquí vive "Cerrar sesión" -->
+    <v-menu>
+      <template #activator="{ props: menuProps }">
+        <v-btn v-bind="menuProps" aria-label="Menú de cuenta" class="account" icon variant="text">
+          <v-avatar color="primary" size="36" variant="tonal">
+            <v-img
+              v-if="authStore.profile?.avatar_url"
+              alt=""
+              cover
+              :src="authStore.profile.avatar_url"
             />
-          </template>
-        </v-text-field>
+            <span v-else class="text-body-2 font-weight-bold">{{ userInitials }}</span>
+          </v-avatar>
+        </v-btn>
+      </template>
 
-        <v-switch
-          v-if="authStore.profile?.role !== 'socio'"
-          v-model="authStore.swapView"
-          :aria-label="`Invertir rol. Viendo: ${feedLabel}`"
-          class="role-switch"
-          color="primary"
-          density="compact"
-          :disabled="!authStore.profile"
-          hide-details
-          :label="`Viendo: ${feedLabel}`"
-        />
-      </div>
-    </template>
+      <v-list min-width="220">
+        <v-list-item :subtitle="roleLabel" :title="authStore.profile?.full_name || 'Mi cuenta'" />
+        <v-divider />
+        <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" @click="logout" />
+      </v-list>
+    </v-menu>
   </v-app-bar>
+
+  <!-- Celular: navegación inferior. Vuetify reserva el espacio en v-main automáticamente. -->
+  <v-bottom-navigation
+    v-if="!mdAndUp"
+    v-model="bottomValue"
+    aria-label="Navegación principal"
+    class="bottom-nav"
+    color="primary"
+    grow
+    :mandatory="false"
+    tag="nav"
+  >
+    <v-btn v-for="item in items" :key="item.to" :to="item.to" :value="item.to">
+      <v-icon :icon="item.icon" />
+      <span>{{ item.label }}</span>
+    </v-btn>
+  </v-bottom-navigation>
 </template>
 
 <script setup>
-  import { computed, ref, watch } from 'vue'
+  import { computed } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-  import { searchParam } from '@/lib/searchUtils'
+  import { useDisplay } from 'vuetify'
+  import { initials } from '@/lib/initials'
+  import { ROLE_LABELS } from '@/lib/roles'
   import { useAuthStore } from '@/stores/auth'
-  
 
   const router = useRouter()
   const route = useRoute()
   const authStore = useAuthStore()
-  const searchText = ref('')
-  const searchType = ref('posts')
-  const searchTypes = [
-    { title: 'Publicaciones', value: 'posts' },
-    { title: 'Perfiles', value: 'profiles' },
+  const { mdAndUp } = useDisplay()
+
+  const items = [
+    { label: 'Recomendaciones', icon: 'mdi-compass-outline', to: '/', match: p => p === '/' || p === '/feed' },
+    { label: 'Buscar empresas', icon: 'mdi-domain', to: '/perfiles', match: p => p === '/perfiles' || p.startsWith('/usuario/') },
+    { label: 'Publicar', icon: 'mdi-plus-circle-outline', to: '/publicar', match: p => p === '/publicar' },
+    { label: 'Mi empresa', icon: 'mdi-office-building-outline', to: '/perfil', match: p => p === '/perfil' },
   ]
 
-  const feedLabel = computed(() => {
-    if (authStore.feedRole === 'proveedor') return 'Proveedores'
-    if (authStore.feedRole === 'cliente') return 'Clientes'
-    return ''
+  const activeItem = computed(() => items.find(item => item.match(route.path)))
+  const bottomValue = computed({
+    get: () => activeItem.value?.to ?? null,
+    set: () => {},   // la ruta manda; el router cambia la sección
   })
 
-  watch(() => route.query.q, value => {
-    searchText.value = searchParam(value)
-  }, { immediate: true })
-
-  watch(() => route.path, path => {
-    searchType.value = path === '/perfiles' || path === '/perfil' || path.startsWith('/usuario/') ? 'profiles' : 'posts'
-  }, { immediate: true })
-
-  function search() {
-    const q = searchParam(searchText.value)
-    searchText.value = q
-    const path = searchType.value === 'profiles' ? '/perfiles' : '/'
-    const sameSearch = path === '/perfiles' ? route.path === '/perfiles' : ['/', '/feed'].includes(route.path)
-    const tag = sameSearch ? searchParam(route.query.tag) : ''
-    router.push({ path, query: { ...(q ? { q } : {}), ...(tag ? { tag } : {}) } })
-  }
-
-  function changeSearchType() {
-    // Switching category preserves the text, but not a tag from another category.
-    const q = searchParam(searchText.value)
-    router.push({ path: searchType.value === 'profiles' ? '/perfiles' : '/', query: q ? { q } : {} })
-  }
-
-  function clearSearch() {
-    searchText.value = ''
-    search()
-  }
+  const userInitials = computed(() => initials(authStore.profile?.full_name))
+  const roleLabel = computed(() => ROLE_LABELS[authStore.profile?.role] ?? '')
 
   async function logout() {
     await authStore.signOut()
@@ -120,37 +101,28 @@
 </script>
 
 <style scoped>
-.search-controls {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  width: 100%;
-  max-width: 900px;
-  margin: 0 auto;
-  padding: 0 16px;
-}
-
-.role-switch {
-  flex: 0 0 auto;
-}
-
-.search-type {
-  flex: 0 0 160px;
-}
-
-.search-field {
-  flex: 1 1 0;
-  min-width: 0;
-}
-
-@media (max-width: 400px) {
-  .search-controls {
+  .brand {
+    display: flex;
+    align-items: center;
     gap: 8px;
-    padding: 0 8px;
+    margin-inline: 16px 24px;
+    color: rgb(var(--v-theme-primary));
+    font-size: 1.25rem;
+    font-weight: 700;
+    text-decoration: none;
   }
 
-  .search-type {
-    flex-basis: 140px;
+  .main-nav {
+    display: flex;
+    align-items: center;
+    gap: 8px;
   }
-}
+
+  .account {
+    margin-inline-end: 8px;
+  }
+
+  .bottom-nav :deep(.v-btn) {
+    border-radius: 0;   /* anula el radio de 10px de los botones normales */
+  }
 </style>

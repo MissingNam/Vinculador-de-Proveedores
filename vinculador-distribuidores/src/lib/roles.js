@@ -4,8 +4,7 @@ export const ROLE_LABELS = {
   socio: 'Socio',
 }
 
-export const ROLE_COLORS = {
-  proveedor: 'blue',
-  cliente: 'green',
-  socio: 'purple',
-}
+export const ROLE_COLORS = { 
+  proveedor: 'primary', 
+  cliente: 'secondary', 
+  socio: 'muted' }

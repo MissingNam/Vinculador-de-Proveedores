@@ -1,22 +1,38 @@
 <template>
-  <v-container max-width="700">
-    <h1 class="text-h5 mb-3">{{ hasFilters ? 'Resultados de perfiles' : 'Perfiles' }}</h1>
+  <v-container max-width="720">
+    <h1 class="page-title">Buscar empresas</h1>
+
+    <SearchBox class="mb-4" path="/perfiles" placeholder="Buscar por nombre o especialidad" />
 
     <div v-if="hasFilters" class="d-flex flex-wrap align-center ga-2 mb-4">
-      <v-chip v-if="text" :aria-label="`Texto buscado: ${text}`" closable @click:close="removeFilter('q')">
+      <v-chip
+        v-if="text"
+        :aria-label="`Texto buscado: ${text}`"
+        closable
+        color="primary"
+        variant="tonal"
+        @click:close="removeFilter('q')"
+      >
         Texto: {{ text }}
       </v-chip>
 
-      <v-chip v-if="tag" :aria-label="`Etiqueta seleccionada: ${tag}`" closable @click:close="removeFilter('tag')">
-        Etiqueta: {{ tag }}
+      <v-chip
+        v-if="tag"
+        :aria-label="`Especialidad seleccionada: ${tag}`"
+        closable
+        color="primary"
+        variant="tonal"
+        @click:close="removeFilter('tag')"
+      >
+        Especialidad: {{ tag }}
       </v-chip>
 
       <v-btn :to="{ path: '/perfiles', query: {} }" variant="text">Limpiar filtros</v-btn>
     </div>
 
     <div v-if="loading" class="text-center py-6" role="status">
-      <v-progress-circular aria-label="Cargando perfiles" indeterminate />
-      <p class="mt-2">Buscando perfiles…</p>
+      <v-progress-circular aria-label="Cargando empresas" indeterminate />
+      <p class="mt-2">Buscando empresas…</p>
     </div>
 
     <v-alert v-else-if="error" class="mb-4" type="error">
@@ -25,19 +41,19 @@
     </v-alert>
 
     <template v-else>
-      <p class="text-medium-emphasis mb-4" role="status">
-        {{ total }} {{ total === 1 ? 'perfil encontrado' : 'perfiles encontrados' }}
+      <p class="text-muted mb-4" role="status">
+        {{ total }} {{ total === 1 ? 'empresa encontrada' : 'empresas encontradas' }}
       </p>
 
       <v-alert v-if="profiles.length === 0" type="info" variant="tonal">
-        {{ hasFilters ? 'No se encontraron perfiles. Prueba otro nombre o etiqueta, o quita los filtros.' : 'Todavía no hay perfiles disponibles.' }}
+        {{ hasFilters ? 'No se encontraron empresas. Prueba otro nombre o especialidad, o quita los filtros.' : 'Todavía no hay empresas disponibles.' }}
       </v-alert>
 
       <ProfileCard v-for="profile in profiles" :key="profile.id" :profile="profile" />
 
       <v-pagination
         v-if="pageCount > 1"
-        aria-label="Páginas de perfiles"
+        aria-label="Páginas de empresas"
         :length="pageCount"
         :model-value="page"
         :total-visible="5"
@@ -54,6 +70,7 @@
   import { PROFILES_PAGE_SIZE, searchProfiles } from '@/lib/profileSearch'
   import { searchParam } from '@/lib/searchUtils'
   import { supabase } from '@/lib/supabase'
+  import SearchBox from '@/components/SearchBox.vue'
 
   const route = useRoute()
   const router = useRouter()

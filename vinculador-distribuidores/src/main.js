@@ -16,8 +16,8 @@ import { createPinia } from 'pinia'
 // Components
 import App from './App.vue'
 
-// Styles
-import 'unfonts.css'
+// Style
+import '@/styles/global.css'
 
 const app = createApp(App)
 app.use(createPinia())

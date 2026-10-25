@@ -17,17 +17,17 @@
       <!-- Bio -->
       <div class="mt-4">
         <div class="d-flex align-center justify-space-between">
-          <span class="text-medium-emphasis text-caption">BIO</span>
+          <span class="text-muted text-caption">BIO</span>
           <v-btn size="small" variant="text" icon="mdi-pencil" @click="openBioDialog" />
         </div>
         <p v-if="authStore.profile?.bio">{{ authStore.profile.bio }}</p>
-        <p v-else class="text-medium-emphasis">Sin biografía todavía.</p>
+        <p v-else class="text-muted">Sin biografía todavía.</p>
       </div>
 
       <!-- Tags -->
       <div class="mt-4">
         <div class="d-flex align-center justify-space-between">
-          <span class="text-medium-emphasis text-caption">ETIQUETAS</span>
+          <span class="text-muted text-caption">ETIQUETAS</span>
           <v-btn size="small" variant="text" icon="mdi-pencil" @click="openTagsDialog" />
         </div>
         <div v-if="myTags.length">
@@ -40,13 +40,13 @@
             :to="{ path: '/perfiles', query: { tag: t.name } }"
           >{{ t.name }}</v-chip>
         </div>
-        <p v-else class="text-medium-emphasis">Sin etiquetas todavía.</p>
+        <p v-else class="text-muted">Sin etiquetas todavía.</p>
       </div>
 
       <!-- Links -->
       <div class="mt-4">
         <div class="d-flex align-center justify-space-between">
-          <span class="text-medium-emphasis text-caption">ENLACES</span>
+          <span class="text-muted text-caption">ENLACES</span>
           <v-btn size="small" variant="text" icon="mdi-pencil" @click="openLinksDialog" />
         </div>
         <div v-if="myLinks.length">
@@ -56,13 +56,13 @@
             </a>
           </div>
         </div>
-        <p v-else class="text-medium-emphasis">Sin enlaces todavía.</p>
+        <p v-else class="text-muted">Sin enlaces todavía.</p>
       </div>
     </v-card>
 
     <div class="text-h6 mb-3">Mis publicaciones</div>
     <v-progress-circular v-if="loading" indeterminate class="d-block mx-auto" />
-    <p v-else-if="myPosts.length === 0" class="text-medium-emphasis">Aún no tienes publicaciones.</p>
+    <p v-else-if="myPosts.length === 0" class="text-muted">Aún no tienes publicaciones.</p>
     <PostCard v-for="post in myPosts" :key="post.id" :post="post" readonly @deleted="removePost" />
 
     <!-- Dialog compartido -->

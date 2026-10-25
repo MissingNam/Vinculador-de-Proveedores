@@ -7,7 +7,7 @@
       class="affinity-badge"
       :color="affinityColor"
       size="small"
-      variant="flat"
+      variant="tonal"
     >
       {{ affinityLabel }}
     </v-chip>
@@ -42,12 +42,11 @@
         width="485"
       />
 
-      <div class="mt-2">
+      <div class="d-flex flex-wrap ga-2 mt-4">
         <v-chip
           v-for="t in visibleTags"
           :key="t.tags.id"
           :aria-label="`Buscar publicaciones con la etiqueta ${t.tags.name}`"
-          class="mr-1 mb-1"
           size="small"
           :to="tagLink(t.tags.name)"
         >
@@ -57,13 +56,8 @@
     </v-card-text>
 
     <v-card-actions v-if="!readonly">
-      <v-btn :color="myReaction === true ? 'green' : ''" @click="react(true)">
-        <v-icon start>mdi-thumb-up</v-icon> Me interesa
-      </v-btn>
-
-      <v-btn :color="myReaction === false ? 'red' : ''" @click="react(false)">
-        <v-icon start>mdi-thumb-down</v-icon> No me interesa
-      </v-btn>
+      <v-btn :color="myReaction === true ? 'secondary' : 'muted'" @click="react(true)">Me Interesa</v-btn>
+      <v-btn :color="myReaction === false ? 'error' : 'muted'" @click="react(false)">No me Interesa</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -101,8 +95,14 @@
   const affinity = computed(() => {
   const value = props.post.affinity
   return value == null ? null : Math.round(Number(value) * 10) / 10})
-  const affinityColor = computed(() => (affinity.value > 0 ? 'green' : affinity.value < 0 ? 'red' : 'grey'))
   const affinityLabel = computed(() => (affinity.value > 0 ? '+' : '') + affinity.value)
+  const affinityColor = computed(() => (affinity.value > 0 ? 'success' : affinity.value < 0 ? 'error' : 'muted'))
+
+  function scoreClass(score) {
+    if (score > 0) return 'text-success'
+    if (score < 0) return 'text-error'
+    return 'text-muted'
+  }
 
     
 
