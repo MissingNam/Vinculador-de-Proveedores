@@ -31,6 +31,7 @@
         v-if="isOwner"
         icon="mdi-delete"
         :loading="deleting"
+        :disabled="reacting"
         size="small"
         variant="text"
         @click="deletePost"
@@ -67,9 +68,11 @@
       </div>
     </v-card-text>
 
+    <v-alert v-if="actionError" class="mx-4 mb-3" role="alert" type="error" variant="tonal">{{ actionError }}</v-alert>
+
     <v-card-actions v-if="!readonly">
-      <v-btn :color="myReaction === true ? 'secondary' : 'muted'" @click="react(true)">Me Interesa</v-btn>
-      <v-btn :color="myReaction === false ? 'error' : 'muted'" @click="react(false)">No me Interesa</v-btn>
+      <v-btn :color="myReaction === true ? 'secondary' : 'muted'" :disabled="reacting || deleting" @click="react(true)">Me Interesa</v-btn>
+      <v-btn :color="myReaction === false ? 'error' : 'muted'" :disabled="reacting || deleting" @click="react(false)">No me Interesa</v-btn>
     </v-card-actions>
   </v-card>
 </template>
@@ -134,23 +137,43 @@
   const myReaction = ref(props.post.myReaction ?? null)
   const isOwner = authStore.user?.id === props.post.author_id
   const deleting = ref(false)
+  const reacting = ref(false)
+  const actionError = ref('')
 
   async function react(interested) {
-    myReaction.value = interested
-    await supabase.from('reactions').upsert({
-      post_id: props.post.id,
-      user_id: authStore.user.id,
-      interested,
-    }, { onConflict: 'post_id,user_id' })
+    if (reacting.value || deleting.value) return
+    reacting.value = true
+    actionError.value = ''
+    try {
+      const { error } = await supabase.from('reactions').upsert({
+        post_id: props.post.id,
+        user_id: authStore.user.id,
+        interested,
+      }, { onConflict: 'post_id,user_id' })
+      if (error) throw error
+      myReaction.value = interested
+    } catch {
+      actionError.value = 'No se pudo guardar tu reacción. Intenta de nuevo.'
+    } finally {
+      reacting.value = false
+    }
   }
 
   async function deletePost() {
+    if (deleting.value || reacting.value || !isOwner) return
     if (!confirm('¿Eliminar esta publicación?')) return
     deleting.value = true
-    const { error } = await supabase.from('posts').delete().eq('id', props.post.id)
-    window.location.reload()
-    deleting.value = false
-    if (!error) emit('deleted', props.post.id)
+    actionError.value = ''
+    try {
+      const { data, error } = await supabase.from('posts').delete().eq('id', props.post.id).select('id')
+      if (error) throw error
+      if (!data?.length) throw new Error('Publicación no disponible')
+      emit('deleted', props.post.id)
+      window.location.reload()
+    } catch {
+      actionError.value = 'No se pudo eliminar la publicación. Recarga e intenta de nuevo.'
+    } finally {
+      deleting.value = false
+    }
   }
 </script>
-
