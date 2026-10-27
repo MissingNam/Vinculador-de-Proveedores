@@ -2,7 +2,7 @@
   <v-app-bar>
     <RouterLink aria-label="Sun Finder, ir a Recomendaciones" class="brand" to="/">
       <v-avatar color="primary" rounded="lg" size="36" variant="tonal">
-        <v-icon icon="mdi-white-balance-sunny" />
+        <v-img :src="logo" alt="Icono" />
       </v-avatar>
       <span>Sun Finder</span>
     </RouterLink>
@@ -72,6 +72,7 @@
   import { initials } from '@/lib/initials'
   import { ROLE_LABELS } from '@/lib/roles'
   import { useAuthStore } from '@/stores/auth'
+  import logo from '../assets/logo.png'
 
   const router = useRouter()
   const route = useRoute()
