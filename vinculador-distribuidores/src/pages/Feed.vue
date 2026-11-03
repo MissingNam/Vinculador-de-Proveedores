@@ -7,6 +7,7 @@
       <div class="discover-controls">
         <div v-if="canChooseRole" class="explore">
           <span id="explore-label" class="explore-label">Explorar</span>
+
           <v-btn-toggle
             v-model="explore"
             aria-labelledby="explore-label"
@@ -30,6 +31,8 @@
 
         <SearchBox class="discover-search" path="/" placeholder="Buscar ofertas o necesidades" />
       </div>
+
+      <RecommendationFilters v-if="!hasFilters" />
     </header>
 
     <!-- Una recomendación a la vez -->
@@ -103,7 +106,8 @@
   import { computed, onBeforeUnmount, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import PostCard from '@/components/PostCard.vue'
-  import RecommendedFeed from '@/components/RecommendedFeed.vue'
+  import RecommendationFilters from '@/components/RecommendationFilters.vue'
+  import RecommendedFeed from '@/components/recommendedFeed.vue'
   import SearchBox from '@/components/SearchBox.vue'
   import { POSTS_PAGE_SIZE, searchParam, searchPosts } from '@/lib/postSearch'
   import { supabase } from '@/lib/supabase'

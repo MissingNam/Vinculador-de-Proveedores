@@ -6,6 +6,10 @@ Scaffolded with Vuetify CLI.
 
 Consulta [la guía de activación, decisiones y pruebas](docs/clasificacion-y-necesidades.md). Estas funciones requieren ejecutar primero la migración de Supabase incluida en `supabase/migrations/202610190001_classification_needs.sql`.
 
+## Recomendaciones filtradas (S3-02)
+
+Consulta [filtros, coincidencias y activación de la RPC](docs/recomendaciones-filtradas.md). Incluye filtros por naturaleza/rubro de la empresa, explicación en cada tarjeta y manejo de resultados vacíos. La actualización requiere que el administrador aplique el SQL incremental indicado en la guía.
+
 ## Configuración local de Supabase
 
 Ejecuta los comandos desde la carpeta `vinculador-distribuidores`.
