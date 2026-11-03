@@ -65,6 +65,7 @@
           {{ t.tags.name }}
         </v-chip>
       </div>
+      <RecommendationExplanation :post="post" />
     </v-card-text>
 
     <v-card-actions v-if="!readonly">
@@ -90,6 +91,7 @@
   import { searchParam } from '@/lib/postSearch'
   import { supabase } from '@/lib/supabase'
   import { useAuthStore } from '@/stores/auth'
+  import RecommendationExplanation from '@/components/RecommendationExplanation.vue'
 
   const props = defineProps({
     post: Object,

@@ -11,6 +11,7 @@
     "lint:fix": "eslint --fix",
     "test:search": "node --test tests/search.integration.test.js",
     "test:classification": "node --test tests/classification-needs.test.js tests/classification-ui.test.js tests/classification-api.test.js",
+    "test:recommendations": "node --test tests/recommendations.test.js tests/recommendations-ui.test.js",
     "seed:needs": "node scripts/seed-classified-needs.mjs"
   },
   "dependencies": {

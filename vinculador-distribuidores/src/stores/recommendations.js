@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { ref, watch } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { BUFFER, fetchRecommendations, WINDOW_SIZE } from '@/lib/recommendations'
 import { supabase } from '@/lib/supabase'
 import { useAuthStore } from '@/stores/auth'
@@ -14,6 +14,10 @@ export const useRecommendationsStore = defineStore('recommendations', () => {
   const noMore = ref(false)     // la base de datos ya no devolvió nada
   const initialized = ref(false)
   const resets = ref(0)         // el componente lo observa para recargar
+  const nature = ref(null)
+  const sectorId = ref(null)
+  const hasFilters = computed(() => Boolean(nature.value || sectorId.value))
+  const requests = new Set()
 
   let generation = 0            // descarta respuestas anteriores a un reset
   let queue = Promise.resolve() // los relevos se procesan de uno en uno
@@ -25,6 +29,8 @@ export const useRecommendationsStore = defineStore('recommendations', () => {
   }
 
   function reset() {
+    for (const request of requests) {request.abort()}
+    requests.clear()
     generation++
     resets.value++
     items.value = []
@@ -36,23 +42,40 @@ export const useRecommendationsStore = defineStore('recommendations', () => {
     queue = Promise.resolve()
   }
 
+  function setFilters(next = {}) {
+    const nextNature = next.nature || null
+    const nextSector = next.sectorId || null
+    if (nature.value === nextNature && sectorId.value === nextSector) {return}
+    nature.value = nextNature
+    sectorId.value = nextSector
+    reset()
+  }
+
+  function fetchPosts(options) {
+    const request = new AbortController()
+    requests.add(request)
+    return fetchRecommendations(supabase, {
+      ...options, roles: roles(), nature: nature.value, sectorId: sectorId.value, signal: request.signal,
+    }).finally(() => requests.delete(request))
+  }
+
   async function init() {
-    if (initialized.value) return
+    if (initialized.value) {return}
     initialized.value = true
     const gen = generation
     loading.value = true
     error.value = ''
     try {
-      const posts = await fetchRecommendations(supabase, { limit: WINDOW_SIZE, roles: roles() })
-      if (gen !== generation) return
+      const posts = await fetchPosts({ limit: WINDOW_SIZE })
+      if (gen !== generation) {return}
       items.value = posts
       noMore.value = posts.length < WINDOW_SIZE
-    } catch {
-      if (gen !== generation) return
-      error.value = 'No se pudieron cargar las recomendaciones. Intenta de nuevo.'
+    } catch (error_) {
+      if (gen !== generation) {return}
+      error.value = error_.userMessage || 'No se pudieron cargar las recomendaciones. Intenta de nuevo.'
       initialized.value = false
     } finally {
-      if (gen === generation) loading.value = false
+      if (gen === generation) {loading.value = false}
     }
   }
 
@@ -67,31 +90,32 @@ export const useRecommendationsStore = defineStore('recommendations', () => {
   }
 
   async function shift(direction, gen, waitIdle) {
-    if (gen !== generation) return false
+    if (gen !== generation) {return false}
+    if (direction > 0 && noMore.value) {return false}
 
     const room = direction > 0 ? items.value.length - 1 - activeIndex.value : activeIndex.value
-    if (room >= BUFFER) return false
+    if (room >= BUFFER) {return false}
 
     let post
     try {
-      const posts = await fetchRecommendations(supabase, {
+      const posts = await fetchPosts({
         limit: 1,
         excludeIds: items.value.map(p => p.id),
-        roles: roles(),
       })
       post = posts[0]
-    } catch {
+    } catch (error_) {
+      if (gen === generation) {error.value = error_.userMessage || 'No se pudieron cargar más recomendaciones. Intenta de nuevo.'}
       return false
     }
-    if (gen !== generation) return false
+    if (gen !== generation) {return false}
 
     if (!post) {
-      if (direction > 0) noMore.value = true
+      if (direction > 0) {noMore.value = true}
       return false
     }
 
     await waitIdle?.() // no tocar la lista mientras el usuario está desplazándose
-    if (gen !== generation) return false
+    if (gen !== generation) {return false}
 
     if (direction > 0) {
       noMore.value = false
@@ -105,12 +129,18 @@ export const useRecommendationsStore = defineStore('recommendations', () => {
 
     items.value.unshift(post)
     activeIndex.value++
-    if (items.value.length > WINDOW_SIZE) items.value.pop()
+    if (items.value.length > WINDOW_SIZE) {items.value.pop()}
     return true
   }
 
   // Nueva sesión o nuevo rol efectivo (incluye el switch): empezar de cero.
-  watch(() => `${authStore.user?.id}|${authStore.feedRole}`, reset)
+  watch(() => `${authStore.user?.id}|${authStore.feedRole}`, (_value, previous) => {
+    if (previous?.split('|', 1)[0] !== String(authStore.user?.id)) {
+      nature.value = null
+      sectorId.value = null
+    }
+    reset()
+  })
 
-  return { items, activeIndex, loading, error, noMore, initialized, resets, init, advance, reset }
+  return { items, activeIndex, loading, error, noMore, initialized, resets, nature, sectorId, hasFilters, setFilters, init, advance, reset }
 })

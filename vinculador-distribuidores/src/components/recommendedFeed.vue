@@ -16,7 +16,8 @@
     <div v-else-if="store.error" class="reco-slide">
       <v-alert class="reco-card" type="error">
         {{ store.error }}
-        <v-btn variant="text" @click="start">Reintentar</v-btn>
+        <v-btn variant="text" @click="retry">Reintentar</v-btn>
+        <v-btn v-if="store.hasFilters" variant="text" @click="store.setFilters()">Limpiar filtros</v-btn>
       </v-alert>
     </div>
 
@@ -26,8 +27,11 @@
       </div>
 
       <div v-if="store.noMore" class="reco-slide">
-        <v-alert class="reco-card" type="info" variant="tonal">
-          No hay más recomendaciones por ahora.
+        <v-alert class="reco-card" role="status" type="info" variant="tonal">
+          <template v-if="store.items.length > 0">No hay más recomendaciones por ahora.</template>
+          <template v-else-if="store.hasFilters">No hay publicaciones recomendadas que coincidan con los filtros seleccionados. Prueba otra naturaleza o rubro.</template>
+          <template v-else>Todavía no hay recomendaciones disponibles para ti.</template>
+          <v-btn v-if="store.hasFilters" class="mt-2" variant="text" @click="store.setFilters()">Limpiar filtros</v-btn>
         </v-alert>
       </div>
     </template>
@@ -61,6 +65,10 @@
     pinToActive()
   }
 
+  function retry() {
+    store.reset()
+  }
+
   function onScroll() {
     scrolling = true
     clearTimeout(settleTimer)
@@ -77,7 +85,7 @@
   }
 
   function flushIdle() {
-    idleWaiters.forEach(resolve => resolve())
+    for (const resolve of idleWaiters) resolve()
     idleWaiters = []
   }
 
