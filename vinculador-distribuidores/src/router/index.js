@@ -18,6 +18,7 @@ const router = createRouter({
     {
       path: '/',
       component: Feed,
+      meta: { guestOk: true }
     },
     {
       path: '/login',
@@ -39,6 +40,7 @@ const router = createRouter({
       path: '/necesidades',
       name: 'needs',
       component: () => import('@/pages/Needs.vue'),
+      meta: { guestOk: true }
     },
     {
       path: '/necesidades/nueva',
@@ -54,20 +56,24 @@ const router = createRouter({
       path: '/necesidades/:id',
       name: 'need-detail',
       component: () => import('@/pages/NeedDetail.vue'),
+      meta: { guestOk: true }
     },
     {
       path: '/perfiles',
       name: 'profile-search',
       component: () => import('@/pages/ProfileSearch.vue'),
+      meta: { guestOk: true }
     },
     {
       path: '/feed',
       component: Feed,
+      meta: { guestOk: true }
     },
     {
       path: '/usuario/:id', 
       name: 'user-profile', 
-      component: () => import('@/pages/UserProfile.vue')
+      component: () => import('@/pages/UserProfile.vue'),
+      meta: { guestOk: true }
     },
   ],
 })
@@ -78,8 +84,9 @@ router.beforeEach(async (to) => {
   if (authStore.loading) await authStore.init()
 
   const publicPages = ['/login', '/register']
-  if (!authStore.user && !publicPages.includes(to.path)) return '/login'
-  if (authStore.user && publicPages.includes(to.path)) return '/'
+  if (!authStore.user) return publicPages.includes(to.path) ? true : '/login'
+  if (authStore.isGuest) return publicPages.includes(to.path) || to.meta.guestOk ? true : '/'
+  if (publicPages.includes(to.path)) return '/'
 })
 
 export default router

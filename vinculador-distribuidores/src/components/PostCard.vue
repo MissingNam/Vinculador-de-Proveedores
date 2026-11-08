@@ -68,7 +68,7 @@
       <RecommendationExplanation :post="post" />
     </v-card-text>
 
-    <v-card-actions v-if="!readonly">
+    <v-card-actions v-if="!readonly && !authStore.isGuest">
       <v-btn :color="myReaction === true ? 'secondary' : 'muted'" @click="react(true)">Me Interesa</v-btn>
       <v-btn :color="myReaction === false ? 'error' : 'muted'" @click="react(false)">No me Interesa</v-btn>
     </v-card-actions>
@@ -114,6 +114,7 @@
   const role = props.post.profiles?.role
   return role ? role.charAt(0).toUpperCase() + role.slice(1) : '' })
   const affinity = computed(() => {
+  if (authStore.isGuest) return null
   const value = props.post.affinity
   return value == null ? null : Math.round(Number(value) * 10) / 10})
   const affinityLabel = computed(() => (affinity.value > 0 ? '+' : '') + affinity.value)
