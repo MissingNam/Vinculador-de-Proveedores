@@ -17,6 +17,7 @@ export const useAuthStore = defineStore('auth', {
       const opposite = myRole === 'cliente' ? 'proveedor' : 'cliente'
       return state.swapView ? myRole : opposite
     },
+    isGuest: (state) => state.user?.is_anonymous === true,
   },
   actions: {
     async init() {
@@ -31,6 +32,7 @@ export const useAuthStore = defineStore('auth', {
       })
     },
     async fetchProfile() {
+      if (this.user?.is_anonymous) { this.profile = null; return null }
       const { data } = await supabase
         .from('profiles')
         .select('*')
@@ -60,6 +62,12 @@ export const useAuthStore = defineStore('auth', {
       this.user = null
       this.profile = null
       this.swapView = false  
+    },
+    async enterAsGuest() {
+      const { data, error } = await supabase.auth.signInAnonymously()
+      if (error) throw error
+      this.user = data.user
+      this.profile = null
     },
   },
 })

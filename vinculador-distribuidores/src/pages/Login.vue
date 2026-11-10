@@ -8,8 +8,9 @@
         <v-alert v-if="error" type="error" density="compact" class="mb-4">{{ error }}</v-alert>
         <v-btn type="submit" color="primary" block :loading="loading">Iniciar Sesion</v-btn>
       </v-form>
-      <v-card-actions>
-        <RouterLink to="/register">¿No tienes cuenta? Registrate!!</RouterLink>
+      <v-card-actions class="justify-space-between">
+        <RouterLink to="/register">¿No tienes cuenta? Regístrate</RouterLink>
+        <v-btn variant="text" @click="enterAsGuest">Unirse como invitado</v-btn>
       </v-card-actions>
     </v-card>
   </v-container>
@@ -30,6 +31,7 @@
     async function handleRegister() {
     loading.value = true
     error.value = ''
+
     try {
         await authStore.signIn(email.value, password.value)
         router.push('/')
@@ -39,4 +41,17 @@
         loading.value = false
     }
     }
+
+    async function enterAsGuest() {
+      error.value = ''
+      try {
+        await authStore.enterAsGuest()
+        router.push('/')
+      } catch (e) {
+        error.value = e.message
+      }
+    }    
+
+
+
 </script>

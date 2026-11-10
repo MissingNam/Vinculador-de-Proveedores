@@ -24,7 +24,8 @@
     <v-spacer />
 
     <!-- Menú de cuenta: aquí vive "Cerrar sesión" -->
-    <v-menu>
+    <v-btn v-if="authStore.isGuest" to="/login" variant="tonal">Iniciar sesión</v-btn>
+    <v-menu v-else>
       <template #activator="{ props: menuProps }">
         <v-btn v-bind="menuProps" aria-label="Menú de cuenta" class="account" icon variant="text">
           <v-avatar color="primary" size="36" variant="tonal">
@@ -58,7 +59,7 @@
     :mandatory="false"
     tag="nav"
   >
-    <v-btn v-for="item in items" :key="item.to" :to="item.to" :value="item.to">
+    <v-btn v-for="item in visibleItems" :key="item.to" :to="item.to" :value="item.to">
       <v-icon :icon="item.icon" />
       <span>{{ item.label }}</span>
     </v-btn>
@@ -80,14 +81,15 @@
   const { mdAndUp } = useDisplay()
 
   const items = [
-    { label: 'Recomendaciones', icon: 'mdi-compass-outline', to: '/', match: p => p === '/' || p === '/feed' },
-    { label: 'Buscar empresas', icon: 'mdi-domain', to: '/perfiles', match: p => p === '/perfiles' || p.startsWith('/usuario/') },
-    { label: 'Necesidades', icon: 'mdi-clipboard-text-outline', to: '/necesidades', match: p => p.startsWith('/necesidades') },
+    { label: 'Recomendaciones', icon: 'mdi-compass-outline', to: '/', match: p => p === '/' || p === '/feed', guest: true },
+    { label: 'Buscar empresas', icon: 'mdi-domain', to: '/perfiles', match: p => p === '/perfiles' || p.startsWith('/usuario/'), guest: true },
+    { label: 'Necesidades', icon: 'mdi-clipboard-text-outline', to: '/necesidades', match: p => p.startsWith('/necesidades'), guest: true },
     { label: 'Publicar', icon: 'mdi-plus-circle-outline', to: '/publicar', match: p => p === '/publicar' },
     { label: 'Mi empresa', icon: 'mdi-office-building-outline', to: '/perfil', match: p => p === '/perfil' },
   ]
 
   const activeItem = computed(() => items.find(item => item.match(route.path)))
+  const visibleItems = computed(() => items.filter(item => !authStore.isGuest || item.guest))
   const bottomValue = computed({
     get: () => activeItem.value?.to ?? null,
     set: () => {},   // la ruta manda; el router cambia la sección

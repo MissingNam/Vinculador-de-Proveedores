@@ -2,10 +2,10 @@
   <v-container max-width="900">
     <div class="d-flex flex-wrap align-center justify-space-between ga-4 mb-4">
       <h1 class="page-title mb-0">Necesidades</h1>
-      <v-btn color="primary" prepend-icon="mdi-plus" to="/necesidades/nueva">Crear Necesidad</v-btn>
+      <v-btn v-if="!auth.isGuest" color="primary" prepend-icon="mdi-plus" to="/necesidades/nueva">Crear Necesidad</v-btn>
     </div>
 
-    <v-tabs class="mb-4" :model-value="mine ? 'mine' : 'all'" @update:model-value="setFilter('view', $event === 'mine' ? 'mine' : '')">
+    <v-tabs v-if="!auth.isGuest" class="mb-4" :model-value="mine ? 'mine' : 'all'" @update:model-value="setFilter('view', $event === 'mine' ? 'mine' : '')">
       <v-tab value="all">Necesidades abiertas</v-tab>
       <v-tab value="mine">Mis necesidades</v-tab>
 
@@ -103,7 +103,7 @@
   const route = useRoute()
   const router = useRouter()
   const auth = useAuthStore()
-  const mine = computed(() => route.query.view === 'mine')
+  const mine = computed(() => route.query.view === 'mine' && !auth.isGuest)
   const text = computed(() => searchParam(route.query.q))
   const nature = computed(() => searchParam(route.query.nature))
   const sector = computed(() => searchParam(route.query.sector))
