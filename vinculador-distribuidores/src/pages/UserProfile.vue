@@ -34,6 +34,15 @@
             </a>
         </div>
       </div>
+
+      <div v-if="contacts.length" class="mt-4">
+        <span class="text-muted text-caption">CONTACTO</span>
+        <ContactList :contacts="contacts" :show-visibility="profile.id === authStore.user?.id" />
+      </div>
+      <p v-else-if="authStore.isGuest" class="mt-4 text-body-2 text-muted">
+        Inicia sesión para ver los datos de contacto.
+      </p>
+
     </v-card>
 
     <div class="text-h6 mb-3">Publicaciones</div>
@@ -51,6 +60,8 @@ import { supabase } from '@/lib/supabase'
 import PostCard from '@/components/PostCard.vue'
 import ProviderClassification from '@/components/ProviderClassification.vue'
 import { canClassify } from '@/lib/classification'
+import ContactList from '@/components/ContactList.vue'
+import { useAuthStore } from '@/stores/auth'
 
 const route = useRoute()
 const profile = ref(null)
@@ -58,6 +69,9 @@ const posts = ref([])
 const loading = ref(true)
 const tags = ref([])
 const links = ref([])
+const authStore = useAuthStore()
+const contacts = ref([])
+
 
 async function loadUser(id) {
   loading.value = true
@@ -88,6 +102,13 @@ async function loadUser(id) {
     .eq('profile_id', id)
     .order('created_at', { ascending: true })
   links.value = linksData ?? []
+
+  const { data: contactsData } = await supabase
+    .from('profile_contacts')
+    .select('*')
+    .eq('profile_id', id)
+    .order('created_at', { ascending: true })
+  contacts.value = contactsData ?? [] 
 }
 
 onMounted(() => loadUser(route.params.id))
