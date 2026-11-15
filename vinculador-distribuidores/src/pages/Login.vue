@@ -8,6 +8,10 @@
         <v-alert v-if="error" type="error" density="compact" class="mb-4">{{ error }}</v-alert>
         <v-btn type="submit" color="primary" block :loading="loading">Iniciar Sesion</v-btn>
       </v-form>
+      <v-divider class="my-4" />
+      <v-btn block :loading="googleLoading" prepend-icon="mdi-google" variant="outlined" @click="google">
+        Continuar con Google
+      </v-btn>
       <v-card-actions class="justify-space-between">
         <RouterLink to="/register">¿No tienes cuenta? Regístrate</RouterLink>
         <v-btn variant="text" @click="enterAsGuest">Unirse como invitado</v-btn>
@@ -27,6 +31,7 @@
     const loading = ref(false)
     const router = useRouter()
     const authStore = useAuthStore()
+    const googleLoading = ref(false)
 
     async function handleRegister() {
     loading.value = true
@@ -51,6 +56,17 @@
         error.value = e.message
       }
     }    
+
+    async function google() {
+      error.value = ''
+      googleLoading.value = true
+      try {
+        await authStore.signInWithGoogle()   // redirige a Google; la página se recarga al volver
+      } catch (e) {
+        error.value = e.message
+        googleLoading.value = false
+      }
+    }
 
 
 
