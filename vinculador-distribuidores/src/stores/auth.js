@@ -18,6 +18,8 @@ export const useAuthStore = defineStore('auth', {
       return state.swapView ? myRole : opposite
     },
     isGuest: (state) => state.user?.is_anonymous === true,
+    // Sesión real (no invitado) sin perfil: primer ingreso con Google o registro a medias
+    needsProfile: (state) => Boolean(state.user) && state.user.is_anonymous !== true && !state.profile,
   },
   actions: {
     async init() {
@@ -37,7 +39,7 @@ export const useAuthStore = defineStore('auth', {
         .from('profiles')
         .select('*')
         .eq('id', this.user.id)
-        .single()
+        .maybeSingle()
       this.profile = data
       return data
     },
@@ -69,5 +71,28 @@ export const useAuthStore = defineStore('auth', {
       this.user = data.user
       this.profile = null
     },
+    async signInWithGoogle() {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin,
+          queryParams: { prompt: 'select_account' },   // siempre deja elegir cuenta
+        },
+      })
+      if (error) throw error
+    },
+
+    async completeProfile(fullName, role) {
+      const metadata = this.user.user_metadata ?? {}
+      const { error } = await supabase.from('profiles').insert({
+        id: this.user.id,
+        full_name: fullName,
+        role,
+        avatar_url: metadata.avatar_url || metadata.picture || null,
+      })
+      // 23505 = el perfil ya existía (por ejemplo, se creó desde otra pestaña): se continúa con ese
+      if (error && error.code !== '23505') throw error
+      await this.fetchProfile()
+},
   },
 })

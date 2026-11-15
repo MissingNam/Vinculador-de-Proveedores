@@ -75,6 +75,11 @@ const router = createRouter({
       component: () => import('@/pages/UserProfile.vue'),
       meta: { guestOk: true }
     },
+    {
+      path: '/completar-perfil',
+      name: 'complete-profile',
+      component: () => import('@/pages/CompleteProfile.vue'),
+    },
   ],
 })
 
@@ -86,7 +91,10 @@ router.beforeEach(async (to) => {
   const publicPages = ['/login', '/register']
   if (!authStore.user) return publicPages.includes(to.path) ? true : '/login'
   if (authStore.isGuest) return publicPages.includes(to.path) || to.meta.guestOk ? true : '/'
-  if (publicPages.includes(to.path)) return '/'
+
+  // Sesión real sin perfil: solo puede estar en "Completa tu perfil"
+  if (authStore.needsProfile) return to.path === '/completar-perfil' ? true : '/completar-perfil'
+  if (publicPages.includes(to.path) || to.path === '/completar-perfil') return '/'
 })
 
 export default router

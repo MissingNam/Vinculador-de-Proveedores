@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <NavBar v-if="authStore.user" />
+    <NavBar v-if="authStore.user && !authStore.needsProfile" />
     <v-main>
       <RouterView />
     </v-main>
