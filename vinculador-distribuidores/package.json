@@ -12,7 +12,8 @@
     "test:search": "node --test tests/search.integration.test.js",
     "test:classification": "node --test tests/classification-needs.test.js tests/classification-ui.test.js tests/classification-api.test.js",
     "test:recommendations": "node --test tests/recommendations.test.js tests/recommendations-ui.test.js",
-    "seed:needs": "node scripts/seed-classified-needs.mjs"
+    "seed:needs": "node scripts/seed-classified-needs.mjs",
+    "test:offers": "node --test tests/offers-assistant.test.js tests/offers-ui.test.js"
   },
   "dependencies": {
     "@fontsource/roboto": "^5.2.10",

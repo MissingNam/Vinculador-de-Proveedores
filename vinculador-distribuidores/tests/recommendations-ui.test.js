@@ -128,7 +128,7 @@ test('Recomendaciones: estado del feed y componentes Vue reales', async t => {
     await t.test('Filtros visibles y explicación integrada en PostCard', async () => {
       const { pinia } = await setup()
       const filters = await render(Filters, {}, pinia)
-      assert.match(filters, /Naturaleza de la oferta/)
+      assert.match(filters, /Naturaleza de la empresa/)
       assert.match(filters, /Rubro de la empresa/)
       const html = await render(Card, { post: { id: 'post', author_id: 'provider', title: 'Software', profiles: { full_name: 'Empresa', role: 'proveedor' }, recommendation: { matched_nature: true, requested_nature: 'servicio', matched_sector: true, sector_name: 'Tecnología y software' }, post_tags: [] } }, pinia)
       assert.match(html, /Por qué aparece/)

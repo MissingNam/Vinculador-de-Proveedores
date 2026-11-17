@@ -10,7 +10,7 @@
     <!-- Escritorio: opciones con texto -->
     <nav v-if="mdAndUp" aria-label="Navegación principal" class="main-nav">
       <v-btn
-        v-for="item in items"
+        v-for="item in visibleItems"
         :key="item.to"
         :aria-current="item === activeItem ? 'page' : undefined"
         :color="item === activeItem ? 'primary' : 'on-surface'"
@@ -43,6 +43,8 @@
       <v-list min-width="220">
         <v-list-item :subtitle="roleLabel" :title="authStore.profile?.full_name || 'Mi cuenta'" />
         <v-divider />
+        <v-list-item prepend-icon="mdi-plus-circle-outline" title="Publicar" to="/publicar" />
+        <v-list-item prepend-icon="mdi-office-building-outline" title="Mi empresa" to="/perfil" />
         <v-list-item prepend-icon="mdi-logout" title="Cerrar sesión" @click="logout" />
       </v-list>
     </v-menu>
@@ -59,15 +61,16 @@
     :mandatory="false"
     tag="nav"
   >
-    <v-btn v-for="item in visibleItems" :key="item.to" :to="item.to" :value="item.to">
+    <v-btn v-for="item in mobileItems" :key="item.to" :aria-label="item.label" :to="item.to" :value="item.to">
       <v-icon :icon="item.icon" />
-      <span>{{ item.label }}</span>
+      <span>{{ item.to === '/' ? 'Inicio' : item.to === '/perfiles' ? 'Empresas' : item.label }}</span>
     </v-btn>
   </v-bottom-navigation>
+  <v-snackbar v-model="logoutError" color="error">No se pudo cerrar sesión. Intenta de nuevo.</v-snackbar>
 </template>
 
 <script setup>
-  import { computed } from 'vue'
+  import { computed, ref } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useDisplay } from 'vuetify'
   import { initials } from '@/lib/initials'
@@ -84,12 +87,14 @@
     { label: 'Recomendaciones', icon: 'mdi-compass-outline', to: '/', match: p => p === '/' || p === '/feed', guest: true },
     { label: 'Buscar empresas', icon: 'mdi-domain', to: '/perfiles', match: p => p === '/perfiles' || p.startsWith('/usuario/'), guest: true },
     { label: 'Necesidades', icon: 'mdi-clipboard-text-outline', to: '/necesidades', match: p => p.startsWith('/necesidades'), guest: true },
+    { label: 'Asistente', icon: 'mdi-creation', to: '/asistente', match: p => p === '/asistente' },
     { label: 'Publicar', icon: 'mdi-plus-circle-outline', to: '/publicar', match: p => p === '/publicar' },
     { label: 'Mi empresa', icon: 'mdi-office-building-outline', to: '/perfil', match: p => p === '/perfil' },
   ]
 
   const activeItem = computed(() => items.find(item => item.match(route.path)))
   const visibleItems = computed(() => items.filter(item => !authStore.isGuest || item.guest))
+  const mobileItems = computed(() => visibleItems.value.filter(item => !['/publicar', '/perfil'].includes(item.to)))
   const bottomValue = computed({
     get: () => activeItem.value?.to ?? null,
     set: () => {},   // la ruta manda; el router cambia la sección
@@ -98,9 +103,10 @@
   const userInitials = computed(() => initials(authStore.profile?.full_name))
   const roleLabel = computed(() => ROLE_LABELS[authStore.profile?.role] ?? '')
 
+  const logoutError = ref(false)
   async function logout() {
-    await authStore.signOut()
-    router.push('/login')
+    try { await authStore.signOut(); await router.push('/login') }
+    catch { logoutError.value = true }
   }
 </script>
 
@@ -127,6 +133,8 @@
   }
 
   .bottom-nav :deep(.v-btn) {
+    min-width: 0;
+    padding-inline: 4px;
     border-radius: 0;   /* anula el radio de 10px de los botones normales */
   }
 </style>

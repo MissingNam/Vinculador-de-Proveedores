@@ -5,7 +5,7 @@
         clearable
         hide-details
         :items="NATURES"
-        label="Naturaleza de la oferta"
+        label="Naturaleza de la empresa"
         :model-value="store.nature"
         @update:model-value="store.setFilters({ nature: $event, sectorId: store.sectorId })"
       />

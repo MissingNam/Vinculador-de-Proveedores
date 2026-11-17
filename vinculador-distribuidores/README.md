@@ -158,3 +158,5 @@ This project uses Vuetify - an MIT licensed Open Source project. We are glad to 
 - Request enterprise support: https://support.vuetifyjs.com/
 - Sponsor on GitHub: https://github.com/sponsors/vuetifyjs
 - Support on Open Collective: https://opencollective.com/vuetify
+
+Ofertas y asistente: [activación, tareas y guion de demo](docs/ofertas-asistente-demo.md).

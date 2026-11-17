@@ -1,0 +1,7 @@
+project_id = "vinculador-distribuidores"
+
+# La función valida el JWT con auth.getUser antes de acceder a datos o APIs.
+[functions.supplier-assistant]
+enabled = true
+verify_jwt = false
+entrypoint = "./functions/supplier-assistant/index.js"
