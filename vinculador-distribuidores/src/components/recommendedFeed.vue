@@ -23,7 +23,7 @@
 
     <template v-else>
       <div v-for="post in store.items" :key="post.id" class="reco-slide">
-        <PostCard class="reco-card" :post="post" />
+        <PostCard class="reco-card" :post="post" @deleted="store.reset()" />
       </div>
 
       <div v-if="store.noMore" class="reco-slide">

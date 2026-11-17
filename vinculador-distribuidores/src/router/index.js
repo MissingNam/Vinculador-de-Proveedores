@@ -28,6 +28,7 @@ const router = createRouter({
       path: '/register',
       component: Register,
     },
+    { path: '/asistente', name: 'assistant', component: () => import('@/pages/Assistant.vue') },
     {
       path: '/publicar',
       component: CreatePost,
@@ -84,17 +85,12 @@ const router = createRouter({
 })
 
 import { useAuthStore } from '@/stores/auth'
+import { routeAccess } from '@/lib/routeAccess'
 router.beforeEach(async (to) => {
   const authStore = useAuthStore()
   if (authStore.loading) await authStore.init()
 
-  const publicPages = ['/login', '/register']
-  if (!authStore.user) return publicPages.includes(to.path) ? true : '/login'
-  if (authStore.isGuest) return publicPages.includes(to.path) || to.meta.guestOk ? true : '/'
-
-  // Sesión real sin perfil: solo puede estar en "Completa tu perfil"
-  if (authStore.needsProfile) return to.path === '/completar-perfil' ? true : '/completar-perfil'
-  if (publicPages.includes(to.path) || to.path === '/completar-perfil') return '/'
+  return routeAccess(authStore, to)
 })
 
 export default router

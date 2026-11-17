@@ -32,6 +32,15 @@
         <SearchBox class="discover-search" path="/" placeholder="Buscar ofertas o necesidades" />
       </div>
 
+      <v-expansion-panels class="mt-3" variant="accordion">
+        <v-expansion-panel title="Buscar por clasificación de la oferta">
+          <v-expansion-panel-text>
+            <OfferFilters :nature="nature" :sector-id="sectorId" @update:nature="setOfferFilter('nature', $event)" @update:sector-id="setOfferFilter('sector', $event)" />
+            <p class="text-caption mt-2">Busca ofertas clasificadas por sus autores. Puedes combinar estos filtros con texto y etiquetas.</p>
+          </v-expansion-panel-text>
+        </v-expansion-panel>
+      </v-expansion-panels>
+
       <RecommendationFilters v-if="!hasFilters" />
     </header>
 
@@ -65,6 +74,8 @@
           Etiqueta: {{ tag }}
         </v-chip>
 
+        <v-chip v-if="nature" closable @click:close="removeFilter('nature')">{{ natureLabel(nature) }}</v-chip>
+        <v-chip v-if="sectorId" closable @click:close="removeFilter('sector')">Rubro: {{ sectorId }}</v-chip>
         <v-btn :to="{ path: '/', query: {} }" variant="text">Limpiar filtros</v-btn>
       </div>
 
@@ -105,10 +116,12 @@
 <script setup>
   import { computed, onBeforeUnmount, ref, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
+  import OfferFilters from '@/components/OfferFilters.vue'
   import PostCard from '@/components/PostCard.vue'
   import RecommendationFilters from '@/components/RecommendationFilters.vue'
   import RecommendedFeed from '@/components/recommendedFeed.vue'
   import SearchBox from '@/components/SearchBox.vue'
+  import { natureLabel } from '@/lib/classification'
   import { POSTS_PAGE_SIZE, searchParam, searchPosts } from '@/lib/postSearch'
   import { supabase } from '@/lib/supabase'
   import { useAuthStore } from '@/stores/auth'
@@ -140,7 +153,9 @@
   const error = ref('')
   const text = computed(() => searchParam(route.query.q))
   const tag = computed(() => searchParam(route.query.tag))
-  const hasFilters = computed(() => Boolean(text.value || tag.value))
+  const nature = computed(() => searchParam(route.query.nature))
+  const sectorId = computed(() => searchParam(route.query.sector))
+  const hasFilters = computed(() => Boolean(text.value || tag.value || nature.value || sectorId.value))
   const page = computed(() => {
     const value = Number(searchParam(route.query.page))
     return Number.isSafeInteger(value) && value > 0 && value <= 1_000_000 ? value : 1
@@ -164,7 +179,8 @@
     total.value = 0
     try {
       const result = await searchPosts(supabase, {
-        text: text.value, tag: tag.value, role: targetRole.value,
+        text: text.value, tag: tag.value, nature: nature.value, sectorId: sectorId.value,
+        role: nature.value || sectorId.value ? 'proveedor' : targetRole.value,
         page: page.value, signal: request.signal,
       })
       if (request.signal.aborted) return
@@ -183,6 +199,10 @@
     }
   }
 
+  function setOfferFilter(key, value) {
+    router.push({ path: '/', query: { ...route.query, [key]: value || undefined, page: undefined } })
+  }
+
   function removeFilter(key) {
     const query = { ...route.query }
     delete query[key]
@@ -194,7 +214,7 @@
     router.push({ path: route.path, query: { ...route.query, page: value === 1 ? undefined : String(value) } })
   }
 
-  watch([text, tag, page, targetRole], loadPosts, { immediate: true })
+  watch([text, tag, nature, sectorId, page, targetRole], loadPosts, { immediate: true })
   onBeforeUnmount(() => activeRequest?.abort())
 </script>
 

@@ -84,7 +84,7 @@ async function loadUser(id) {
 
   const { data: postsData } = await supabase
     .from('posts')
-    .select('*, profiles(full_name, role), post_tags(tags(id, name))')
+    .select('*, sectors(name), profiles(full_name, role), post_tags(tags(id, name))')
     .eq('author_id', id)
     .order('created_at', { ascending: false })
   posts.value = postsData ?? []

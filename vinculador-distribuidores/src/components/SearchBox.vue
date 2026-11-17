@@ -37,7 +37,7 @@
     const q = searchParam(text.value)
     text.value = q
     const tag = searchParam(route.query.tag)
-    router.push({ path: props.path, query: { ...(q ? { q } : {}), ...(tag ? { tag } : {}) } })
+    router.push({ path: props.path, query: { ...(route.path === props.path ? { ...route.query, page: undefined, q: undefined, tag: undefined } : {}), ...(q ? { q } : {}), ...(tag ? { tag } : {}) } })
   }
 
   function clear() {

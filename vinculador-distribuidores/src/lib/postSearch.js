@@ -5,10 +5,10 @@ export { searchParam } from './searchUtils.js'
 export const POSTS_PAGE_SIZE = 20
 
 
-export async function searchPosts(client, { text = '', tag = '', role = '', page = 1, pageSize = POSTS_PAGE_SIZE, signal } = {}) {
+export async function searchPosts(client, { text = '', tag = '', nature = '', sectorId = '', role = '', page = 1, pageSize = POSTS_PAGE_SIZE, signal } = {}) {
   text = searchParam(text)
   tag = searchParam(tag)
-  const columns = ['*',role ? 'profiles!inner(full_name, role)' : 'profiles(full_name, role)','post_tags(tags(id, name))',]
+  const columns = ['*','sectors(name)',role ? 'profiles!inner(full_name, role)' : 'profiles(full_name, role)','post_tags(tags(id, name))',]
   if (text) {
     columns.push('matching_tags:post_tags(tags!inner(name))')
   }
@@ -32,6 +32,9 @@ export async function searchPosts(client, { text = '', tag = '', role = '', page
   if (role) {
     query = query.in('profiles.role', [role, 'socio'])
   }
+
+  if (nature) {query = query.eq('nature', nature)}
+  if (sectorId) {query = query.eq('sector_id', sectorId)}
 
   const start = (page - 1) * pageSize
   query = query

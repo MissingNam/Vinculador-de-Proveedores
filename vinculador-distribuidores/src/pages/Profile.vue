@@ -424,7 +424,7 @@ function removePost(id) {
 onMounted(async () => {
   const { data } = await supabase
     .from('posts')
-    .select('*, profiles(full_name, role), post_tags(tags(id, name))')
+    .select('*, sectors(name), profiles(full_name, role), post_tags(tags(id, name))')
     .eq('author_id', authStore.user.id)
     .order('created_at', { ascending: false })
   myPosts.value = data ?? []
